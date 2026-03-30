@@ -11,6 +11,7 @@ export interface Agent {
   name: string;
   description: string;
   icon: string;
+  category: string;
   creditCost: number;
   active: boolean;
   color: string;
