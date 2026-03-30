@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Bot, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import NeuralNetworkBackground from "@/components/NeuralNetworkBackground";
 
 const Login = () => {
   const { login, isAuthenticated } = useAuthStore();
