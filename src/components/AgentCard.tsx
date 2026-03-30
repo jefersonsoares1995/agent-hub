@@ -24,9 +24,17 @@ const AgentCard = ({ agent, index }: AgentCardProps) => {
           <div className="relative">
             <div className="mb-4 flex items-center justify-between">
               <span className="text-3xl">{agent.icon}</span>
-              <span className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground">
-                {agent.creditCost} crédito{agent.creditCost > 1 ? "s" : ""}
-              </span>
+              <div className="flex flex-col items-end gap-1.5">
+                <span
+                  className="rounded-full px-2.5 py-0.5 text-xs font-medium"
+                  style={{ backgroundColor: `hsl(${agent.color} / 0.15)`, color: `hsl(${agent.color})` }}
+                >
+                  {agent.category}
+                </span>
+                <span className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground">
+                  {agent.creditCost} crédito{agent.creditCost > 1 ? "s" : ""}
+                </span>
+              </div>
             </div>
             <h3 className="mb-2 font-heading text-lg font-semibold text-foreground">{agent.name}</h3>
             <p className="mb-4 text-sm leading-relaxed text-muted-foreground">{agent.description}</p>

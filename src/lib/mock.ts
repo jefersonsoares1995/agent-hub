@@ -36,6 +36,7 @@ export const MOCK_AGENTS: Agent[] = [
     name: "Changelog → Posts",
     description: "Gera posts de update do app a partir do changelog técnico, prontos para redes sociais.",
     icon: "📣",
+    category: "Marketing",
     creditCost: 3,
     active: true,
     color: "38 92% 50%",
