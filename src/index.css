@@ -59,6 +59,12 @@
     --credit-positive: 142 70% 45%;
     --credit-zero: 0 72% 51%;
     --credit-warning: 38 92% 50%;
+
+    /* Futuristic tokens */
+    --glow-primary: 0 0 30px hsl(172 66% 50% / 0.3), 0 0 60px hsl(172 66% 50% / 0.1);
+    --glow-accent: 0 0 30px hsl(260 60% 60% / 0.3), 0 0 60px hsl(260 60% 60% / 0.1);
+    --grid-color: hsl(172 66% 50% / 0.04);
+    --scan-line-color: hsl(172 66% 50% / 0.03);
   }
 }
 
