@@ -25,6 +25,7 @@ export const MOCK_AGENTS: Agent[] = [
     name: "Meeting → Tasks",
     description: "Transforma notas de reunião em bullets organizados com ações, responsáveis e prazos.",
     icon: "📋",
+    category: "Produtividade",
     creditCost: 2,
     active: true,
     color: "260 60% 60%",
