@@ -65,6 +65,8 @@ const AppHeader = () => {
             </motion.div>
           </Link>
 
+          <ThemeSwitcher />
+
           <Button variant="ghost" size="icon" onClick={handleLogout} className="text-muted-foreground hover:text-foreground">
             <LogOut className="h-4 w-4" />
           </Button>
