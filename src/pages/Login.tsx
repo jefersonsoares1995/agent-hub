@@ -31,21 +31,9 @@ const Login = () => {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-gradient-surface px-4 overflow-hidden">
-      {/* Futuristic grid background */}
-      <div className="absolute inset-0 futuristic-grid opacity-60" />
-      
-      {/* Floating orbs */}
-      <motion.div
-        className="absolute top-1/4 -left-20 h-64 w-64 rounded-full bg-primary/5 blur-3xl"
-        animate={{ x: [0, 40, 0], y: [0, -30, 0] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute bottom-1/4 -right-20 h-48 w-48 rounded-full bg-accent/10 blur-3xl"
-        animate={{ x: [0, -30, 0], y: [0, 20, 0] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-      />
+    <div className="relative flex min-h-screen items-center justify-center px-4 overflow-hidden">
+      {/* Neural Network animated background */}
+      <NeuralNetworkBackground />
 
       <motion.div
         initial={{ opacity: 0, y: 30, scale: 0.95 }}
