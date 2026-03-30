@@ -4,6 +4,7 @@ import { useCreditsStore } from "@/lib/store";
 import { Coins, LogOut, User, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import ThemeSwitcher from "@/components/ThemeSwitcher";
 
 const AppHeader = () => {
   const { user, logout } = useAuthStore();
