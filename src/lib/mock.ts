@@ -14,6 +14,7 @@ export const MOCK_AGENTS: Agent[] = [
     name: "Idea → Tech",
     description: "Converte seu brainstorm em definições técnicas estruturadas: stack, arquitetura, user stories e estimativas.",
     icon: "💡",
+    category: "Desenvolvimento",
     creditCost: 1,
     active: true,
     color: "172 66% 50%",
