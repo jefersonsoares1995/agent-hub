@@ -77,3 +77,29 @@ export const useAgentsStore = create<AgentsState>(() => ({
   agents: MOCK_AGENTS,
   getAgent: (id) => MOCK_AGENTS.find((a) => a.id === id),
 }));
+
+// Theme store with localStorage persistence
+interface ThemeState {
+  theme: string;
+  setTheme: (theme: string) => void;
+}
+
+const getInitialTheme = () => {
+  if (typeof window !== "undefined") {
+    const saved = localStorage.getItem("app-theme");
+    if (saved) {
+      document.documentElement.setAttribute("data-theme", saved);
+      return saved;
+    }
+  }
+  return "cyber";
+};
+
+export const useThemeStore = create<ThemeState>((set) => ({
+  theme: getInitialTheme(),
+  setTheme: (theme) => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("app-theme", theme);
+    set({ theme });
+  },
+}));
