@@ -128,6 +128,15 @@ export default {
           "60%": { transform: "translate(2px, 2px)" },
           "80%": { transform: "translate(2px, -2px)" },
         },
+        "border-beam": {
+          "0%": { transform: "translate(-50%, -50%) rotate(0deg)" },
+          "100%": { transform: "translate(-50%, -50%) rotate(360deg)" },
+        },
+        "border-beam-offset": {
+          "100%": {
+            "offset-distance": "100%",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -141,6 +150,8 @@ export default {
         "holo-shift": "holo-shift 6s ease infinite",
         "data-stream": "data-stream 2s linear infinite",
         "glitch": "glitch 0.3s ease-in-out",
+        "border-beam": "border-beam 10s linear infinite",
+        "border-beam-fast": "border-beam 5s linear infinite",
       },
     },
   },

@@ -7,6 +7,7 @@ import ChatBubble from "@/components/ChatBubble";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Loader2, Send } from "lucide-react";
+import * as LucideIcons from "lucide-react";
 import { toast } from "sonner";
 
 const ChatContent = ({ agentId }: { agentId: string }) => {
@@ -16,6 +17,7 @@ const ChatContent = ({ agentId }: { agentId: string }) => {
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const agent = getAgent(agentId)!;
+  const IconComponent = (LucideIcons as any)[agent?.icon || ""] as React.ElementType;
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -61,7 +63,9 @@ const ChatContent = ({ agentId }: { agentId: string }) => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
-        <span className="text-2xl">{agent.icon}</span>
+        <div className="flex items-center justify-center p-2 rounded-lg bg-cyan-500/10">
+          {IconComponent ? <IconComponent className="h-5 w-5 text-cyan-400" /> : <span className="text-2xl">{agent.icon}</span>}
+        </div>
         <div>
           <h2 className="font-heading text-sm font-semibold text-foreground">{agent.name}</h2>
           <p className="text-xs text-muted-foreground">{agent.creditCost} crédito por uso</p>
@@ -73,8 +77,10 @@ const ChatContent = ({ agentId }: { agentId: string }) => {
         {messages.length === 0 && (
           <div className="flex h-full items-center justify-center">
             <div className="text-center">
-              <span className="text-5xl">{agent.icon}</span>
-              <p className="mt-4 text-muted-foreground">Digite seu input e clique em Gerar</p>
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-cyan-500/10 mb-4 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
+                {IconComponent ? <IconComponent className="h-10 w-10 text-cyan-400" /> : <span className="text-5xl">{agent.icon}</span>}
+              </div>
+              <p className="text-muted-foreground">Digite seu input e clique em Gerar</p>
             </div>
           </div>
         )}

@@ -31,12 +31,12 @@ const ThemeSwitcher = () => {
     <div ref={ref} className="relative">
       <motion.button
         onClick={() => setOpen(!open)}
-        className="flex h-9 w-9 items-center justify-center rounded-full border border-border bg-secondary text-secondary-foreground transition-colors hover:bg-secondary/80"
+        className="flex items-center justify-center rounded-full p-2 text-slate-400 transition-colors hover:bg-white/5 hover:text-slate-100"
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.9 }}
         title="Trocar tema"
       >
-        <Palette className="h-4 w-4" />
+        <Palette className="h-5 w-5" />
       </motion.button>
 
       <AnimatePresence>

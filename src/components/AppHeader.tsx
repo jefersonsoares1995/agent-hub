@@ -17,32 +17,30 @@ const AppHeader = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-card/60 backdrop-blur-2xl">
-      {/* Animated bottom border */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-900/40 backdrop-blur-lg">
+      {/* Animated bottom border Beam Effect */}
+      <div className="absolute bottom-[-1px] left-0 right-0 h-[1px] opacity-70">
+        <div className="h-full w-full bg-[linear-gradient(90deg,transparent,theme(colors.cyan.400),transparent)] bg-[length:200%_100%] animate-holo-shift" />
+      </div>
 
-      <div className="container flex h-16 items-center justify-between">
-        <Link to="/agentes" className="flex items-center gap-2 group">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <Link to="/agentes" className="group flex items-center gap-2">
           <motion.div
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-primary"
+            className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-800 border border-white/10 drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]"
             whileHover={{ scale: 1.1, rotate: 5 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
-            <Bot className="h-5 w-5 text-primary-foreground" />
+            <Bot className="h-5 w-5 text-cyan-400" />
           </motion.div>
-          <span className="font-heading text-lg font-bold text-foreground group-hover:text-gradient-primary transition-all">
+          <span className="font-heading text-xl font-bold tracking-tight text-white transition-all group-hover:text-cyan-400">
             AgentesAI
           </span>
         </Link>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <Link to="/creditos">
             <motion.div
-              className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-all ${
-                balance > 0
-                  ? "border-credit-positive/30 text-credit-positive"
-                  : "border-credit-zero/30 text-credit-zero"
-              }`}
+              className="flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-sm font-medium text-emerald-400 transition-all hover:bg-emerald-500/20"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -51,25 +49,25 @@ const AppHeader = () => {
             </motion.div>
           </Link>
 
-          <Link to="/conta">
+          <Link to="/conta" className="flex items-center justify-center rounded-full p-2 text-slate-400 transition-colors hover:bg-white/5 hover:text-slate-100">
             <motion.div
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary text-secondary-foreground transition-colors hover:bg-secondary/80"
+              className="flex items-center justify-center"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
             >
               {user?.avatarUrl ? (
-                <img src={user.avatarUrl} alt="" className="h-9 w-9 rounded-full" />
+                <img src={user.avatarUrl} alt="" className="h-5 w-5 rounded-full object-cover" />
               ) : (
-                <User className="h-4 w-4" />
+                <User className="h-5 w-5" />
               )}
             </motion.div>
           </Link>
 
           <ThemeSwitcher />
 
-          <Button variant="ghost" size="icon" onClick={handleLogout} className="text-muted-foreground hover:text-foreground">
-            <LogOut className="h-4 w-4" />
-          </Button>
+          <button onClick={handleLogout} className="flex items-center justify-center rounded-full p-2 text-slate-400 transition-colors hover:bg-white/5 hover:text-slate-100">
+            <LogOut className="h-5 w-5" />
+          </button>
         </div>
       </div>
     </header>
