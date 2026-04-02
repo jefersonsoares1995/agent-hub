@@ -9,11 +9,12 @@ import { motion } from "framer-motion";
 import NeuralNetworkBackground from "@/components/NeuralNetworkBackground";
 
 const Login = () => {
-  const { login, isAuthenticated } = useAuthStore();
+  const { login, loginWithGoogle, isAuthenticated, loading: authLoading } = useAuthStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  if (authLoading) return null;
   if (isAuthenticated) return <Navigate to="/agentes" replace />;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -23,16 +24,23 @@ const Login = () => {
     try {
       await login(email, password);
       toast.success("Bem-vindo de volta!");
-    } catch {
-      toast.error("Erro ao fazer login");
+    } catch (err: any) {
+      toast.error(err?.message || "Erro ao fazer login");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleGoogleLogin = async () => {
+    try {
+      await loginWithGoogle();
+    } catch (err: any) {
+      toast.error(err?.message || "Erro ao conectar com Google");
+    }
+  };
+
   return (
     <div className="relative flex min-h-screen items-center justify-center px-4 overflow-hidden">
-      {/* Neural Network animated background */}
       <NeuralNetworkBackground />
 
       <motion.div
@@ -96,6 +104,7 @@ const Login = () => {
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
             <Button
               type="button"
+              onClick={handleGoogleLogin}
               className="w-full bg-white/5 border border-white/10 text-white text-sm font-normal hover:bg-white/10 hover:shadow-[0_0_15px_rgba(255,255,255,0.05)] transition-all flex items-center justify-center gap-3"
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor">
