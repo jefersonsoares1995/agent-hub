@@ -1,29 +1,80 @@
 import { create } from "zustand";
 import { Agent, ChatMessage, CreditTransaction, User } from "./types";
-import { MOCK_AGENTS, MOCK_BALANCE, MOCK_TRANSACTIONS, MOCK_USER } from "./mock";
+import { MOCK_AGENTS, MOCK_BALANCE, MOCK_TRANSACTIONS } from "./mock";
+import { supabase } from "@/integrations/supabase/client";
+import { Session } from "@supabase/supabase-js";
 
 interface AuthState {
   user: User | null;
+  session: Session | null;
   isAuthenticated: boolean;
+  loading: boolean;
+  setSession: (session: Session | null) => void;
+  setUser: (user: User | null) => void;
+  setLoading: (loading: boolean) => void;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, name: string) => Promise<void>;
-  logout: () => void;
+  loginWithGoogle: () => Promise<void>;
+  logout: () => Promise<void>;
+  fetchProfile: (userId: string) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
+  session: null,
   isAuthenticated: false,
-  login: async (_email, _password) => {
-    await new Promise((r) => setTimeout(r, 600));
-    set({ user: MOCK_USER, isAuthenticated: true });
+  loading: true,
+  setSession: (session) => set({ session, isAuthenticated: !!session }),
+  setUser: (user) => set({ user }),
+  setLoading: (loading) => set({ loading }),
+  login: async (email, password) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
   },
-  signup: async (_email, _password, name) => {
-    await new Promise((r) => setTimeout(r, 600));
-    set({ user: { ...MOCK_USER, displayName: name }, isAuthenticated: true });
+  signup: async (email, password, name) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { full_name: name },
+        emailRedirectTo: window.location.origin,
+      },
+    });
+    if (error) throw error;
   },
-  logout: () => set({ user: null, isAuthenticated: false }),
+  loginWithGoogle: async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin + "/agentes",
+      },
+    });
+    if (error) throw error;
+  },
+  logout: async () => {
+    await supabase.auth.signOut();
+    set({ user: null, session: null, isAuthenticated: false });
+  },
+  fetchProfile: async (userId) => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("user_id", userId)
+      .single();
+    if (data) {
+      set({
+        user: {
+          id: data.user_id,
+          email: data.email ?? "",
+          displayName: data.display_name ?? "",
+          avatarUrl: data.avatar_url ?? undefined,
+        },
+      });
+    }
+  },
 }));
 
+// Credits store
 interface CreditsState {
   balance: number;
   transactions: CreditTransaction[];
@@ -52,6 +103,7 @@ export const useCreditsStore = create<CreditsState>((set) => ({
     })),
 }));
 
+// Chat store
 interface ChatState {
   messages: ChatMessage[];
   isGenerating: boolean;
@@ -68,6 +120,7 @@ export const useChatStore = create<ChatState>((set) => ({
   clearMessages: () => set({ messages: [] }),
 }));
 
+// Agents store
 interface AgentsState {
   agents: Agent[];
   getAgent: (id: string) => Agent | undefined;
@@ -78,7 +131,7 @@ export const useAgentsStore = create<AgentsState>(() => ({
   getAgent: (id) => MOCK_AGENTS.find((a) => a.id === id),
 }));
 
-// Theme store with localStorage persistence
+// Theme store
 interface ThemeState {
   theme: string;
   setTheme: (theme: string) => void;
