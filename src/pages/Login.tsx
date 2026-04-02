@@ -45,9 +45,9 @@ const Login = () => {
           <motion.div
             className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-primary glow-primary"
             animate={{ boxShadow: [
-              "0 0 20px hsl(172 66% 50% / 0.2)",
-              "0 0 40px hsl(172 66% 50% / 0.4)",
-              "0 0 20px hsl(172 66% 50% / 0.2)",
+              "0 0 20px var(--primary-color) / 0.2",
+              "0 0 40px var(--primary-color) / 0.4",
+              "0 0 20px var(--primary-color) / 0.2",
             ]}}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           >
@@ -73,7 +73,7 @@ const Login = () => {
               placeholder="Senha"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="bg-slate-900/40 border-white/10 backdrop-blur-xl text-white placeholder:text-slate-600 focus:ring-2 focus:ring-cyan-500 transition-all"
+              className="bg-slate-900/40 border-white/10 backdrop-blur-xl text-white placeholder:text-slate-600 focus:ring-2 focus:ring-primary transition-all"
             />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
@@ -111,7 +111,7 @@ const Login = () => {
 
         <p className="mt-8 text-center text-sm text-muted-foreground">
           Não tem conta?{" "}
-          <Link to="/signup" className="font-medium text-cyan-400 hover:text-cyan-300">
+          <Link to="/signup" className="font-medium text-primary hover:opacity-80">
             Criar conta
           </Link>
         </p>

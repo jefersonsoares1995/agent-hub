@@ -48,9 +48,9 @@ const Signup = () => {
           <motion.div
             className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-primary glow-primary"
             animate={{ boxShadow: [
-              "0 0 20px hsl(172 66% 50% / 0.2)",
-              "0 0 40px hsl(172 66% 50% / 0.4)",
-              "0 0 20px hsl(172 66% 50% / 0.2)",
+              "0 0 20px var(--primary-color) / 0.2",
+              "0 0 40px var(--primary-color) / 0.4",
+              "0 0 20px var(--primary-color) / 0.2",
             ]}}
             transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
           >
@@ -58,7 +58,7 @@ const Signup = () => {
           </motion.div>
           <h1 className="font-heading text-2xl font-bold tracking-tight text-white">Criar Conta</h1>
           <p className="mt-1 text-sm text-slate-400">
-            Comece grátis com <span className="text-cyan-400 font-bold">5 créditos</span>
+            Comece grátis com <span className="text-primary font-bold">5 créditos</span>
           </p>
         </div>
 
@@ -68,7 +68,7 @@ const Signup = () => {
               placeholder="Seu nome"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="bg-slate-900/40 border-white/10 backdrop-blur-xl text-white placeholder:text-slate-600 focus:ring-2 focus:ring-cyan-500 transition-all"
+              className="bg-slate-900/40 border-white/10 backdrop-blur-xl text-white placeholder:text-slate-600 focus:ring-2 focus:ring-primary transition-all"
             />
           </motion.div>
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
@@ -77,7 +77,7 @@ const Signup = () => {
               placeholder="seu@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-slate-900/40 border-white/10 backdrop-blur-xl text-white placeholder:text-slate-600 focus:ring-2 focus:ring-cyan-500 transition-all"
+              className="bg-slate-900/40 border-white/10 backdrop-blur-xl text-white placeholder:text-slate-600 focus:ring-2 focus:ring-primary transition-all"
             />
           </motion.div>
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
@@ -86,7 +86,7 @@ const Signup = () => {
               placeholder="Crie uma senha"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="bg-slate-900/40 border-white/10 backdrop-blur-xl text-white placeholder:text-slate-600 focus:ring-2 focus:ring-cyan-500 transition-all"
+              className="bg-slate-900/40 border-white/10 backdrop-blur-xl text-white placeholder:text-slate-600 focus:ring-2 focus:ring-primary transition-all"
             />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
@@ -98,7 +98,7 @@ const Signup = () => {
 
         <p className="mt-8 text-center text-sm text-muted-foreground">
           Já tem conta?{" "}
-          <Link to="/login" className="font-medium text-cyan-400 hover:text-cyan-300 transition-colors">
+          <Link to="/login" className="font-medium text-primary hover:opacity-80 transition-colors">
             Entrar
           </Link>
         </p>

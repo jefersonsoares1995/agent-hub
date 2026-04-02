@@ -20,7 +20,7 @@ const AppHeader = () => {
     <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-900/40 backdrop-blur-lg">
       {/* Animated bottom border Beam Effect */}
       <div className="absolute bottom-[-1px] left-0 right-0 h-[1px] opacity-70">
-        <div className="h-full w-full bg-[linear-gradient(90deg,transparent,theme(colors.cyan.400),transparent)] bg-[length:200%_100%] animate-holo-shift" />
+        <div className="h-full w-full bg-[linear-gradient(90deg,transparent,var(--primary-color),transparent)] bg-[length:200%_100%] animate-holo-shift" />
       </div>
 
       <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -30,9 +30,9 @@ const AppHeader = () => {
             whileHover={{ scale: 1.1, rotate: 5 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
-            <Bot className="h-5 w-5 text-cyan-400" />
+            <Bot className="h-5 w-5 text-primary" />
           </motion.div>
-          <span className="font-heading text-xl font-bold tracking-tight text-white transition-all group-hover:text-cyan-400">
+          <span className="font-heading text-xl font-bold tracking-tight text-white transition-all group-hover:text-primary">
             AgentesAI
           </span>
         </Link>

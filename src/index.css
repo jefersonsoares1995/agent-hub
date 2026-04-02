@@ -20,9 +20,10 @@
     --popover-foreground: 210 20% 92%;
 
     --primary: 172 66% 50%;
-    --primary-foreground: 220 20% 4%;
-
+    --primary-color: hsl(172 66% 50%);
     --secondary: 220 16% 14%;
+    --secondary-color: hsl(200 80% 55%);
+    --primary-foreground: 220 20% 4%;
     --secondary-foreground: 210 20% 80%;
 
     --muted: 220 14% 12%;
@@ -77,9 +78,10 @@
     --popover-foreground: 270 15% 92%;
 
     --primary: 280 100% 65%;
-    --primary-foreground: 270 25% 4%;
-
+    --primary-color: hsl(280 100% 65%);
     --secondary: 270 20% 14%;
+    --secondary-color: hsl(320 80% 60%);
+    --primary-foreground: 270 25% 4%;
     --secondary-foreground: 270 15% 80%;
 
     --muted: 270 18% 12%;
@@ -132,9 +134,10 @@
     --popover-foreground: 30 20% 92%;
 
     --primary: 25 95% 55%;
-    --primary-foreground: 15 25% 4%;
-
+    --primary-color: hsl(25 95% 55%);
     --secondary: 15 20% 14%;
+    --secondary-color: hsl(350 80% 55%);
+    --primary-foreground: 15 25% 4%;
     --secondary-foreground: 30 15% 80%;
 
     --muted: 15 18% 12%;
@@ -187,9 +190,10 @@
     --popover-foreground: 210 20% 92%;
 
     --primary: 200 90% 50%;
-    --primary-foreground: 210 30% 4%;
-
+    --primary-color: hsl(200 90% 50%);
     --secondary: 210 20% 14%;
+    --secondary-color: hsl(170 70% 45%);
+    --primary-foreground: 210 30% 4%;
     --secondary-foreground: 210 15% 80%;
 
     --muted: 210 18% 12%;
@@ -242,9 +246,10 @@
     --popover-foreground: 140 15% 90%;
 
     --primary: 142 70% 48%;
-    --primary-foreground: 140 30% 3%;
-
+    --primary-color: hsl(142 70% 48%);
     --secondary: 140 20% 12%;
+    --secondary-color: hsl(100 60% 45%);
+    --primary-foreground: 140 30% 3%;
     --secondary-foreground: 140 15% 78%;
 
     --muted: 140 18% 10%;
@@ -297,9 +302,10 @@
     --popover-foreground: 340 15% 92%;
 
     --primary: 340 75% 60%;
-    --primary-foreground: 340 20% 5%;
-
+    --primary-color: hsl(340 75% 60%);
     --secondary: 340 16% 14%;
+    --secondary-color: hsl(30 60% 55%);
+    --primary-foreground: 340 20% 5%;
     --secondary-foreground: 340 12% 78%;
 
     --muted: 340 14% 12%;
