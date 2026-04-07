@@ -39,7 +39,7 @@ const ChatContent = ({ agentId }: { agentId: string }) => {
 
     try {
       const { data, error } = await supabase.functions.invoke('agent-generate', {
-        body: { agentId, input: input.trim(), userId: profile?.id },
+        body: { agentId, input: input.trim(), userId: user?.id },
       });
 
       if (error) throw error;
