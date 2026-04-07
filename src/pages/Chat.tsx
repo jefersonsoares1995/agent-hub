@@ -14,7 +14,7 @@ const ChatContent = ({ agentId }: { agentId: string }) => {
   const { getAgent } = useAgentsStore();
   const { messages, addMessage, isGenerating, setGenerating } = useChatStore();
   const { balance, deduct } = useCreditsStore();
-  const { profile } = useAuthStore();
+  const { user } = useAuthStore();
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const agent = getAgent(agentId)!;
