@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
-import { useAgentsStore, useChatStore, useCreditsStore } from "@/lib/store";
-import { mockGenerate } from "@/lib/mock";
+import { useAgentsStore, useChatStore, useCreditsStore, useAuthStore } from "@/lib/store";
+import { supabase } from "@/integrations/supabase/client";
 import CreditGuard from "@/components/CreditGuard";
 import ChatBubble from "@/components/ChatBubble";
 import { Button } from "@/components/ui/button";
