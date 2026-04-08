@@ -10,7 +10,7 @@ import NeuralNetworkBackground from "@/components/NeuralNetworkBackground";
 
 const Signup = () => {
   const { signup, loginWithGoogle, isAuthenticated, loading: authLoading } = useAuthStore();
-  const { addCredits } = useCreditsStore();
+  
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
