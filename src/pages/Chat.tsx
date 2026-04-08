@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { useAgentsStore, useChatStore, useCreditsStore } from "@/lib/store";
-import { mockGenerate } from "@/lib/mock";
+import { supabase } from "@/integrations/supabase/client";
 import CreditGuard from "@/components/CreditGuard";
 import ChatBubble from "@/components/ChatBubble";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,11 @@ const ChatContent = ({ agentId }: { agentId: string }) => {
     setGenerating(true);
 
     try {
-      const output = await mockGenerate(agentId, input);
+      const { data, error } = await supabase.functions.invoke('agent-generate', {
+        body: { agentId, input },
+      });
+      if (error) throw error;
+      const output = data?.output || "Sem resposta do agente.";
       deduct(agent.creditCost, agent.name);
       addMessage({ id: `msg-${Date.now() + 1}`, role: "assistant", content: output, createdAt: new Date() });
     } catch {
