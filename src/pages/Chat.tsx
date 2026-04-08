@@ -37,7 +37,11 @@ const ChatContent = ({ agentId }: { agentId: string }) => {
     setGenerating(true);
 
     try {
-      const output = await mockGenerate(agentId, input);
+      const { data, error } = await supabase.functions.invoke('agent-generate', {
+        body: { agentId, input },
+      });
+      if (error) throw error;
+      const output = data?.output || "Sem resposta do agente.";
       deduct(agent.creditCost, agent.name);
       addMessage({ id: `msg-${Date.now() + 1}`, role: "assistant", content: output, createdAt: new Date() });
     } catch {
