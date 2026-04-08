@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Agent, ChatMessage, CreditTransaction, User } from "./types";
-import { MOCK_AGENTS, MOCK_BALANCE, MOCK_TRANSACTIONS } from "./mock";
+import { MOCK_AGENTS } from "./mock";
 import { supabase } from "@/integrations/supabase/client";
 import { Session } from "@supabase/supabase-js";
 
@@ -74,50 +74,166 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 }));
 
-// Credits store
+// Credits store — backed by Supabase
 interface CreditsState {
   balance: number;
   transactions: CreditTransaction[];
-  deduct: (amount: number, description: string) => void;
-  addCredits: (amount: number, reason: "purchase" | "bonus") => void;
+  loading: boolean;
+  fetchCredits: (userId: string) => Promise<void>;
+  deduct: (amount: number, description: string) => Promise<void>;
+  addCredits: (amount: number, reason: "purchase" | "bonus") => Promise<void>;
 }
 
-export const useCreditsStore = create<CreditsState>((set) => ({
-  balance: MOCK_BALANCE,
-  transactions: MOCK_TRANSACTIONS,
-  deduct: (amount, description) =>
+export const useCreditsStore = create<CreditsState>((set, get) => ({
+  balance: 0,
+  transactions: [],
+  loading: true,
+  fetchCredits: async (userId: string) => {
+    const [balanceRes, txRes] = await Promise.all([
+      supabase.from("credit_balances").select("balance").eq("user_id", userId).single(),
+      supabase.from("credit_transactions").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(50),
+    ]);
+    set({
+      balance: balanceRes.data?.balance ?? 0,
+      transactions: (txRes.data ?? []).map((t: any) => ({
+        id: t.id,
+        amount: t.amount,
+        reason: t.reason,
+        description: t.description ?? "",
+        createdAt: new Date(t.created_at),
+      })),
+      loading: false,
+    });
+  },
+  deduct: async (amount, description) => {
+    const session = (await supabase.auth.getSession()).data.session;
+    if (!session) return;
+    const userId = session.user.id;
+    const newBalance = get().balance - amount;
+
+    // Update balance
+    await supabase.from("credit_balances").update({ balance: newBalance }).eq("user_id", userId);
+    // Insert transaction
+    const { data: tx } = await supabase.from("credit_transactions").insert({
+      user_id: userId,
+      amount: -amount,
+      reason: "usage" as const,
+      description,
+    }).select().single();
+
     set((s) => ({
-      balance: s.balance - amount,
-      transactions: [
-        { id: `tx-${Date.now()}`, amount: -amount, reason: "usage", description, createdAt: new Date() },
-        ...s.transactions,
-      ],
-    })),
-  addCredits: (amount, reason) =>
+      balance: newBalance,
+      transactions: tx
+        ? [{ id: tx.id, amount: tx.amount, reason: tx.reason as any, description: tx.description ?? "", createdAt: new Date(tx.created_at) }, ...s.transactions]
+        : s.transactions,
+    }));
+  },
+  addCredits: async (amount, reason) => {
+    const session = (await supabase.auth.getSession()).data.session;
+    if (!session) return;
+    const userId = session.user.id;
+    const newBalance = get().balance + amount;
+
+    await supabase.from("credit_balances").update({ balance: newBalance }).eq("user_id", userId);
+    const desc = reason === "purchase" ? "Compra de créditos" : "Bônus";
+    const { data: tx } = await supabase.from("credit_transactions").insert({
+      user_id: userId,
+      amount,
+      reason,
+      description: desc,
+    }).select().single();
+
     set((s) => ({
-      balance: s.balance + amount,
-      transactions: [
-        { id: `tx-${Date.now()}`, amount, reason, description: reason === "purchase" ? "Compra de créditos" : "Bônus", createdAt: new Date() },
-        ...s.transactions,
-      ],
-    })),
+      balance: newBalance,
+      transactions: tx
+        ? [{ id: tx.id, amount: tx.amount, reason: tx.reason as any, description: tx.description ?? "", createdAt: new Date(tx.created_at) }, ...s.transactions]
+        : s.transactions,
+    }));
+  },
 }));
 
-// Chat store
+// Chat store — backed by Supabase
 interface ChatState {
+  sessionId: string | null;
   messages: ChatMessage[];
   isGenerating: boolean;
+  loadingHistory: boolean;
+  initSession: (agentId: string) => Promise<void>;
   addMessage: (msg: ChatMessage) => void;
+  persistMessage: (msg: ChatMessage) => Promise<void>;
   setGenerating: (v: boolean) => void;
   clearMessages: () => void;
 }
 
-export const useChatStore = create<ChatState>((set) => ({
+export const useChatStore = create<ChatState>((set, get) => ({
+  sessionId: null,
   messages: [],
   isGenerating: false,
+  loadingHistory: false,
+  initSession: async (agentId: string) => {
+    const session = (await supabase.auth.getSession()).data.session;
+    if (!session) return;
+    const userId = session.user.id;
+
+    set({ loadingHistory: true });
+
+    // Find existing session or create new one
+    const { data: existing } = await supabase
+      .from("chat_sessions")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("agent_id", agentId)
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    let sessionId: string;
+    if (existing) {
+      sessionId = existing.id;
+      // Load existing messages
+      const { data: msgs } = await supabase
+        .from("chat_messages")
+        .select("*")
+        .eq("session_id", sessionId)
+        .order("created_at", { ascending: true });
+      set({
+        sessionId,
+        messages: (msgs ?? []).map((m: any) => ({
+          id: m.id,
+          role: m.role,
+          content: m.content,
+          createdAt: new Date(m.created_at),
+        })),
+        loadingHistory: false,
+      });
+    } else {
+      const { data: newSession } = await supabase
+        .from("chat_sessions")
+        .insert({ user_id: userId, agent_id: agentId })
+        .select()
+        .single();
+      sessionId = newSession?.id ?? "";
+      set({ sessionId, messages: [], loadingHistory: false });
+    }
+  },
   addMessage: (msg) => set((s) => ({ messages: [...s.messages, msg] })),
+  persistMessage: async (msg: ChatMessage) => {
+    const { sessionId } = get();
+    const session = (await supabase.auth.getSession()).data.session;
+    if (!sessionId || !session) return;
+
+    await supabase.from("chat_messages").insert({
+      id: msg.id,
+      session_id: sessionId,
+      user_id: session.user.id,
+      role: msg.role,
+      content: msg.content,
+    });
+    // Touch session updated_at
+    await supabase.from("chat_sessions").update({ updated_at: new Date().toISOString() }).eq("id", sessionId);
+  },
   setGenerating: (v) => set({ isGenerating: v }),
-  clearMessages: () => set({ messages: [] }),
+  clearMessages: () => set({ messages: [], sessionId: null }),
 }));
 
 // Agents store

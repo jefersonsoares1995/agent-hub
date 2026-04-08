@@ -12,12 +12,16 @@ import { toast } from "sonner";
 
 const ChatContent = ({ agentId }: { agentId: string }) => {
   const { getAgent } = useAgentsStore();
-  const { messages, addMessage, isGenerating, setGenerating } = useChatStore();
+  const { messages, addMessage, persistMessage, isGenerating, setGenerating, initSession, loadingHistory } = useChatStore();
   const { balance, deduct } = useCreditsStore();
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const agent = getAgent(agentId)!;
   const IconComponent = (LucideIcons as any)[agent?.icon || ""] as React.ElementType;
+
+  useEffect(() => {
+    initSession(agentId);
+  }, [agentId, initSession]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -31,8 +35,9 @@ const ChatContent = ({ agentId }: { agentId: string }) => {
       return;
     }
 
-    const userMsg = { id: `msg-${Date.now()}`, role: "user" as const, content: input, createdAt: new Date() };
+    const userMsg = { id: crypto.randomUUID(), role: "user" as const, content: input, createdAt: new Date() };
     addMessage(userMsg);
+    await persistMessage(userMsg);
     setInput("");
     setGenerating(true);
 
@@ -42,8 +47,10 @@ const ChatContent = ({ agentId }: { agentId: string }) => {
       });
       if (error) throw error;
       const output = data?.output || "Sem resposta do agente.";
-      deduct(agent.creditCost, agent.name);
-      addMessage({ id: `msg-${Date.now() + 1}`, role: "assistant", content: output, createdAt: new Date() });
+      await deduct(agent.creditCost, agent.name);
+      const assistantMsg = { id: crypto.randomUUID(), role: "assistant" as const, content: output, createdAt: new Date() };
+      addMessage(assistantMsg);
+      await persistMessage(assistantMsg);
     } catch {
       toast.error("Erro ao gerar resposta");
     } finally {
@@ -57,6 +64,14 @@ const ChatContent = ({ agentId }: { agentId: string }) => {
       handleGenerate();
     }
   };
+
+  if (loadingHistory) {
+    return (
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-[calc(100vh-4rem)] flex-col">
