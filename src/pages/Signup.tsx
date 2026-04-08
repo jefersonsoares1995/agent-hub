@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { useAuthStore, useCreditsStore } from "@/lib/store";
+import { useAuthStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Bot, Loader2 } from "lucide-react";
@@ -25,7 +25,6 @@ const Signup = () => {
     setLoading(true);
     try {
       await signup(email, password, name);
-      addCredits(5, "bonus");
       toast.success("Conta criada! Verifique seu e-mail para confirmar 📧");
     } catch (err: any) {
       toast.error(err?.message || "Erro ao criar conta");
