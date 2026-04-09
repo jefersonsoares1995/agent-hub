@@ -163,6 +163,7 @@ interface ChatState {
   loadSessions: (agentId: string) => Promise<void>;
   switchSession: (sessionId: string) => Promise<void>;
   createNewSession: (agentId: string) => Promise<void>;
+  deleteSession: (sessionId: string, agentId: string) => Promise<void>;
   addMessage: (msg: ChatMessage) => void;
   persistMessage: (msg: ChatMessage) => Promise<void>;
   setGenerating: (v: boolean) => void;
@@ -275,6 +276,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
     if (newSession) {
       set({ sessionId: newSession.id, messages: [] });
       get().loadSessions(agentId);
+    }
+  },
+
+  deleteSession: async (sessionId: string, agentId: string) => {
+    await supabase.from("chat_messages").delete().eq("session_id", sessionId);
+    await supabase.from("chat_sessions").delete().eq("id", sessionId);
+    const currentId = get().sessionId;
+    set((s) => ({ sessions: s.sessions.filter((sess) => sess.id !== sessionId) }));
+    if (currentId === sessionId) {
+      set({ sessionId: null, messages: [] });
+      await get().initSession(agentId);
     }
   },
 

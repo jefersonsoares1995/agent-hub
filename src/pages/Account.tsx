@@ -1,6 +1,7 @@
 import { useAuthStore, useCreditsStore } from "@/lib/store";
 import { Coins, User } from "lucide-react";
 import { format } from "date-fns";
+import EditProfileModal from "@/components/EditProfileModal";
 
 const Account = () => {
   const { user } = useAuthStore();
@@ -19,6 +20,9 @@ const Account = () => {
           <div>
             <p className="font-heading text-lg font-semibold text-foreground">{user?.displayName}</p>
             <p className="text-sm text-muted-foreground">{user?.email}</p>
+            <div className="mt-2">
+              <EditProfileModal />
+            </div>
           </div>
         </div>
         <div className="mt-4 flex items-center gap-2 rounded-lg bg-muted px-4 py-3">
