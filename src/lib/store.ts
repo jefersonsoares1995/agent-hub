@@ -279,6 +279,17 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
+  deleteSession: async (sessionId: string, agentId: string) => {
+    await supabase.from("chat_messages").delete().eq("session_id", sessionId);
+    await supabase.from("chat_sessions").delete().eq("id", sessionId);
+    const currentId = get().sessionId;
+    set((s) => ({ sessions: s.sessions.filter((sess) => sess.id !== sessionId) }));
+    if (currentId === sessionId) {
+      set({ sessionId: null, messages: [] });
+      await get().initSession(agentId);
+    }
+  },
+
   addMessage: (msg) => set((s) => ({ messages: [...s.messages, msg] })),
   persistMessage: async (msg: ChatMessage) => {
     const { sessionId } = get();
