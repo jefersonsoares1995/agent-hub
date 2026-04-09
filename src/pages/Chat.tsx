@@ -4,6 +4,7 @@ import { useAgentsStore, useChatStore, useCreditsStore } from "@/lib/store";
 import { supabase } from "@/integrations/supabase/client";
 import CreditGuard from "@/components/CreditGuard";
 import ChatBubble from "@/components/ChatBubble";
+import ChatHistorySidebar from "@/components/ChatHistorySidebar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Loader2, Send } from "lucide-react";
@@ -15,6 +16,7 @@ const ChatContent = ({ agentId }: { agentId: string }) => {
   const { messages, addMessage, persistMessage, isGenerating, setGenerating, initSession, loadingHistory } = useChatStore();
   const { balance, deduct } = useCreditsStore();
   const [input, setInput] = useState("");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
   const agent = getAgent(agentId)!;
   const IconComponent = (LucideIcons as any)[agent?.icon || ""] as React.ElementType;
@@ -65,73 +67,75 @@ const ChatContent = ({ agentId }: { agentId: string }) => {
     }
   };
 
-  if (loadingHistory) {
-    return (
-      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col">
-      {/* Top bar */}
-      <div className="flex items-center gap-3 border-b border-border px-4 py-3">
-        <Link to="/agentes">
-          <Button variant="ghost" size="icon" className="text-muted-foreground">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
-        <div className="flex items-center justify-center p-2 rounded-lg bg-primary/10">
-          {IconComponent ? <IconComponent className="h-5 w-5 text-primary" /> : <span className="text-2xl">{agent.icon}</span>}
-        </div>
-        <div>
-          <h2 className="font-heading text-sm font-semibold text-foreground">{agent.name}</h2>
-          <p className="text-xs text-muted-foreground">{agent.creditCost} crédito por uso</p>
-        </div>
-      </div>
+    <div className="flex h-[calc(100vh-4rem)]">
+      <ChatHistorySidebar agentId={agentId} isOpen={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
 
-      {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.length === 0 && (
-          <div className="flex h-full items-center justify-center">
-            <div className="text-center">
-              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 mb-4 shadow-[0_0_15px_var(--primary-color,rgba(6,182,212,0.1))]">
-                {IconComponent ? <IconComponent className="h-10 w-10 text-primary" /> : <span className="text-5xl">{agent.icon}</span>}
+      <div className="flex flex-1 flex-col min-w-0">
+        {/* Top bar */}
+        <div className="flex items-center gap-3 border-b border-border px-4 py-3">
+          <Link to="/agentes">
+            <Button variant="ghost" size="icon" className="text-muted-foreground">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+          </Link>
+          <div className="flex items-center justify-center p-2 rounded-lg bg-primary/10">
+            {IconComponent ? <IconComponent className="h-5 w-5 text-primary" /> : <span className="text-2xl">{agent.icon}</span>}
+          </div>
+          <div>
+            <h2 className="font-heading text-sm font-semibold text-foreground">{agent.name}</h2>
+            <p className="text-xs text-muted-foreground">{agent.creditCost} crédito por uso</p>
+          </div>
+        </div>
+
+        {/* Messages */}
+        {loadingHistory ? (
+          <div className="flex flex-1 items-center justify-center">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          </div>
+        ) : (
+          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
+            {messages.length === 0 && (
+              <div className="flex h-full items-center justify-center">
+                <div className="text-center">
+                  <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 mb-4 shadow-[0_0_15px_var(--primary-color,rgba(6,182,212,0.1))]">
+                    {IconComponent ? <IconComponent className="h-10 w-10 text-primary" /> : <span className="text-5xl">{agent.icon}</span>}
+                  </div>
+                  <p className="text-muted-foreground">Digite seu input e clique em Gerar</p>
+                </div>
               </div>
-              <p className="text-muted-foreground">Digite seu input e clique em Gerar</p>
-            </div>
+            )}
+            {messages.map((msg) => (
+              <ChatBubble key={msg.id} message={msg} />
+            ))}
+            {isGenerating && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                Gerando resposta...
+              </div>
+            )}
           </div>
         )}
-        {messages.map((msg) => (
-          <ChatBubble key={msg.id} message={msg} />
-        ))}
-        {isGenerating && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin text-primary" />
-            Gerando resposta...
-          </div>
-        )}
-      </div>
 
-      {/* Input */}
-      <div className="border-t border-border p-4">
-        <div className="flex gap-2">
-          <Textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={`Descreva seu input para ${agent.name}...`}
-            className="min-h-[44px] max-h-32 resize-none bg-card border-border"
-            rows={1}
-          />
-          <Button
-            onClick={handleGenerate}
-            disabled={!input.trim() || isGenerating}
-            className="bg-gradient-primary text-primary-foreground hover:opacity-90 shrink-0"
-          >
-            {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-          </Button>
+        {/* Input */}
+        <div className="border-t border-border p-4">
+          <div className="flex gap-2">
+            <Textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={`Descreva seu input para ${agent.name}...`}
+              className="min-h-[44px] max-h-32 resize-none bg-card border-border"
+              rows={1}
+            />
+            <Button
+              onClick={handleGenerate}
+              disabled={!input.trim() || isGenerating}
+              className="bg-gradient-primary text-primary-foreground hover:opacity-90 shrink-0"
+            >
+              {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
