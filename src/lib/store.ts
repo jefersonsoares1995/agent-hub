@@ -106,48 +106,41 @@ export const useCreditsStore = create<CreditsState>((set, get) => ({
     });
   },
   deduct: async (amount, description) => {
-    const session = (await supabase.auth.getSession()).data.session;
-    if (!session) return;
-    const userId = session.user.id;
-    const newBalance = get().balance - amount;
-
-    // Update balance
-    await supabase.from("credit_balances").update({ balance: newBalance }).eq("user_id", userId);
-    // Insert transaction
-    const { data: tx } = await supabase.from("credit_transactions").insert({
-      user_id: userId,
-      amount: -amount,
-      reason: "usage" as const,
-      description,
-    }).select().single();
-
+    const { data: rawData, error } = await supabase.rpc("deduct_credits", {
+      p_amount: amount,
+      p_description: description,
+    });
+    const data = rawData as any;
+    if (error || !data?.success) {
+      console.error("deduct_credits failed:", error || data?.error);
+      return;
+    }
     set((s) => ({
-      balance: newBalance,
-      transactions: tx
-        ? [{ id: tx.id, amount: tx.amount, reason: tx.reason as any, description: tx.description ?? "", createdAt: new Date(tx.created_at) }, ...s.transactions]
-        : s.transactions,
+      balance: data.new_balance,
+      transactions: [
+        { id: data.transaction_id, amount: -amount, reason: "usage", description, createdAt: new Date() },
+        ...s.transactions,
+      ],
     }));
   },
   addCredits: async (amount, reason) => {
-    const session = (await supabase.auth.getSession()).data.session;
-    if (!session) return;
-    const userId = session.user.id;
-    const newBalance = get().balance + amount;
-
-    await supabase.from("credit_balances").update({ balance: newBalance }).eq("user_id", userId);
     const desc = reason === "purchase" ? "Compra de créditos" : "Bônus";
-    const { data: tx } = await supabase.from("credit_transactions").insert({
-      user_id: userId,
-      amount,
-      reason,
-      description: desc,
-    }).select().single();
-
+    const { data: rawData, error } = await supabase.rpc("add_credits", {
+      p_amount: amount,
+      p_reason: reason,
+      p_description: desc,
+    });
+    const data = rawData as any;
+    if (error || !data?.success) {
+      console.error("add_credits failed:", error || data?.error);
+      return;
+    }
     set((s) => ({
-      balance: newBalance,
-      transactions: tx
-        ? [{ id: tx.id, amount: tx.amount, reason: tx.reason as any, description: tx.description ?? "", createdAt: new Date(tx.created_at) }, ...s.transactions]
-        : s.transactions,
+      balance: data.new_balance,
+      transactions: [
+        { id: crypto.randomUUID(), amount, reason, description: desc, createdAt: new Date() },
+        ...s.transactions,
+      ],
     }));
   },
 }));
