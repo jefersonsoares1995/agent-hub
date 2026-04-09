@@ -106,10 +106,11 @@ export const useCreditsStore = create<CreditsState>((set, get) => ({
     });
   },
   deduct: async (amount, description) => {
-    const { data, error } = await supabase.rpc("deduct_credits", {
+    const { data: rawData, error } = await supabase.rpc("deduct_credits", {
       p_amount: amount,
       p_description: description,
     });
+    const data = rawData as any;
     if (error || !data?.success) {
       console.error("deduct_credits failed:", error || data?.error);
       return;
@@ -124,11 +125,12 @@ export const useCreditsStore = create<CreditsState>((set, get) => ({
   },
   addCredits: async (amount, reason) => {
     const desc = reason === "purchase" ? "Compra de créditos" : "Bônus";
-    const { data, error } = await supabase.rpc("add_credits", {
+    const { data: rawData, error } = await supabase.rpc("add_credits", {
       p_amount: amount,
       p_reason: reason,
       p_description: desc,
     });
+    const data = rawData as any;
     if (error || !data?.success) {
       console.error("add_credits failed:", error || data?.error);
       return;
