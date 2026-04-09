@@ -163,6 +163,7 @@ interface ChatState {
   loadSessions: (agentId: string) => Promise<void>;
   switchSession: (sessionId: string) => Promise<void>;
   createNewSession: (agentId: string) => Promise<void>;
+  deleteSession: (sessionId: string, agentId: string) => Promise<void>;
   addMessage: (msg: ChatMessage) => void;
   persistMessage: (msg: ChatMessage) => Promise<void>;
   setGenerating: (v: boolean) => void;
