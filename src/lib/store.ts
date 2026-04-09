@@ -146,12 +146,23 @@ export const useCreditsStore = create<CreditsState>((set, get) => ({
 }));
 
 // Chat store — backed by Supabase
+interface ChatSessionSummary {
+  id: string;
+  title: string | null;
+  updatedAt: Date;
+}
+
 interface ChatState {
   sessionId: string | null;
+  sessions: ChatSessionSummary[];
   messages: ChatMessage[];
   isGenerating: boolean;
   loadingHistory: boolean;
+  loadingSessions: boolean;
   initSession: (agentId: string) => Promise<void>;
+  loadSessions: (agentId: string) => Promise<void>;
+  switchSession: (sessionId: string) => Promise<void>;
+  createNewSession: (agentId: string) => Promise<void>;
   addMessage: (msg: ChatMessage) => void;
   persistMessage: (msg: ChatMessage) => Promise<void>;
   setGenerating: (v: boolean) => void;
@@ -160,9 +171,32 @@ interface ChatState {
 
 export const useChatStore = create<ChatState>((set, get) => ({
   sessionId: null,
+  sessions: [],
   messages: [],
   isGenerating: false,
   loadingHistory: false,
+  loadingSessions: false,
+
+  loadSessions: async (agentId: string) => {
+    const session = (await supabase.auth.getSession()).data.session;
+    if (!session) return;
+    set({ loadingSessions: true });
+    const { data } = await supabase
+      .from("chat_sessions")
+      .select("id, title, updated_at")
+      .eq("user_id", session.user.id)
+      .eq("agent_id", agentId)
+      .order("updated_at", { ascending: false });
+    set({
+      sessions: (data ?? []).map((s: any) => ({
+        id: s.id,
+        title: s.title,
+        updatedAt: new Date(s.updated_at),
+      })),
+      loadingSessions: false,
+    });
+  },
+
   initSession: async (agentId: string) => {
     const session = (await supabase.auth.getSession()).data.session;
     if (!session) return;
@@ -170,7 +204,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     set({ loadingHistory: true });
 
-    // Find existing session or create new one
+    // Find most recent session or create new one
     const { data: existing } = await supabase
       .from("chat_sessions")
       .select("id")
@@ -183,7 +217,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
     let sessionId: string;
     if (existing) {
       sessionId = existing.id;
-      // Load existing messages
       const { data: msgs } = await supabase
         .from("chat_messages")
         .select("*")
@@ -208,7 +241,43 @@ export const useChatStore = create<ChatState>((set, get) => ({
       sessionId = newSession?.id ?? "";
       set({ sessionId, messages: [], loadingHistory: false });
     }
+
+    // Load sessions list
+    get().loadSessions(agentId);
   },
+
+  switchSession: async (sessionId: string) => {
+    set({ loadingHistory: true, sessionId });
+    const { data: msgs } = await supabase
+      .from("chat_messages")
+      .select("*")
+      .eq("session_id", sessionId)
+      .order("created_at", { ascending: true });
+    set({
+      messages: (msgs ?? []).map((m: any) => ({
+        id: m.id,
+        role: m.role,
+        content: m.content,
+        createdAt: new Date(m.created_at),
+      })),
+      loadingHistory: false,
+    });
+  },
+
+  createNewSession: async (agentId: string) => {
+    const session = (await supabase.auth.getSession()).data.session;
+    if (!session) return;
+    const { data: newSession } = await supabase
+      .from("chat_sessions")
+      .insert({ user_id: session.user.id, agent_id: agentId })
+      .select()
+      .single();
+    if (newSession) {
+      set({ sessionId: newSession.id, messages: [] });
+      get().loadSessions(agentId);
+    }
+  },
+
   addMessage: (msg) => set((s) => ({ messages: [...s.messages, msg] })),
   persistMessage: async (msg: ChatMessage) => {
     const { sessionId } = get();
@@ -222,11 +291,24 @@ export const useChatStore = create<ChatState>((set, get) => ({
       role: msg.role,
       content: msg.content,
     });
-    // Touch session updated_at
-    await supabase.from("chat_sessions").update({ updated_at: new Date().toISOString() }).eq("id", sessionId);
+
+    // Auto-generate title from first user message
+    const currentSessions = get().sessions;
+    const currentSession = currentSessions.find(s => s.id === sessionId);
+    if (msg.role === "user" && currentSession && !currentSession.title) {
+      const title = msg.content.slice(0, 60) + (msg.content.length > 60 ? "..." : "");
+      await supabase.from("chat_sessions").update({ updated_at: new Date().toISOString(), title }).eq("id", sessionId);
+      set({
+        sessions: currentSessions.map(s =>
+          s.id === sessionId ? { ...s, title, updatedAt: new Date() } : s
+        ),
+      });
+    } else {
+      await supabase.from("chat_sessions").update({ updated_at: new Date().toISOString() }).eq("id", sessionId);
+    }
   },
   setGenerating: (v) => set({ isGenerating: v }),
-  clearMessages: () => set({ messages: [], sessionId: null }),
+  clearMessages: () => set({ messages: [], sessionId: null, sessions: [] }),
 }));
 
 // Agents store
