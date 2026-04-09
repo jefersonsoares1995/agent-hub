@@ -1,6 +1,7 @@
 import { useAuthStore, useCreditsStore } from "@/lib/store";
 import { Coins, User } from "lucide-react";
 import { format } from "date-fns";
+import EditProfileModal from "@/components/EditProfileModal";
 
 const Account = () => {
   const { user } = useAuthStore();
