@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuthStore } from "@/lib/store";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -13,7 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Pencil, Loader2 } from "lucide-react";
+import { Pencil, Loader2, Upload, X } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const EditProfileModal = () => {
   const { user, fetchProfile, session } = useAuthStore();
@@ -21,6 +22,8 @@ const EditProfileModal = () => {
   const [displayName, setDisplayName] = useState(user?.displayName ?? "");
   const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl ?? "");
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Password fields
   const [newPassword, setNewPassword] = useState("");
@@ -35,6 +38,44 @@ const EditProfileModal = () => {
       setNewPassword("");
       setConfirmPassword("");
     }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !session) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Selecione um arquivo de imagem");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("A imagem deve ter no máximo 2MB");
+      return;
+    }
+
+    setUploading(true);
+    const userId = session.user.id;
+    const ext = file.name.split(".").pop();
+    const filePath = `${userId}/avatar.${ext}`;
+
+    const { error } = await supabase.storage
+      .from("avatars")
+      .upload(filePath, file, { upsert: true });
+
+    if (error) {
+      toast.error("Erro ao enviar imagem");
+      setUploading(false);
+      return;
+    }
+
+    const { data: publicData } = supabase.storage
+      .from("avatars")
+      .getPublicUrl(filePath);
+
+    // Add cache-bust to force refresh
+    setAvatarUrl(`${publicData.publicUrl}?t=${Date.now()}`);
+    setUploading(false);
+    toast.success("Imagem enviada!");
   };
 
   const handleSaveProfile = async () => {
@@ -74,6 +115,8 @@ const EditProfileModal = () => {
     setSavingPassword(false);
   };
 
+  const initials = (user?.displayName ?? "U").slice(0, 2).toUpperCase();
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
@@ -88,6 +131,44 @@ const EditProfileModal = () => {
         </DialogHeader>
 
         <div className="space-y-4">
+          {/* Avatar upload */}
+          <div className="flex flex-col items-center gap-3">
+            <Avatar className="h-20 w-20">
+              <AvatarImage src={avatarUrl} />
+              <AvatarFallback className="text-lg">{initials}</AvatarFallback>
+            </Avatar>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                disabled={uploading}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                {uploading ? "Enviando..." : "Enviar foto"}
+              </Button>
+              {avatarUrl && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setAvatarUrl("")}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleAvatarUpload}
+            />
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="displayName">Nome</Label>
             <Input
@@ -96,16 +177,6 @@ const EditProfileModal = () => {
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Seu nome"
               maxLength={100}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="avatarUrl">URL do avatar</Label>
-            <Input
-              id="avatarUrl"
-              value={avatarUrl}
-              onChange={(e) => setAvatarUrl(e.target.value)}
-              placeholder="https://..."
-              maxLength={500}
             />
           </div>
           <Button onClick={handleSaveProfile} disabled={saving} className="w-full">
