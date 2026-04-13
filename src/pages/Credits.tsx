@@ -19,7 +19,7 @@ const Credits = () => {
   };
 
   return (
-    <div className="relative container max-w-2xl py-10">
+    <div className="relative container max-w-2xl px-4 sm:px-6 py-6 sm:py-10">
       <div className="fixed inset-0 futuristic-grid opacity-20 pointer-events-none" />
 
       <motion.div

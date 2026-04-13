@@ -8,7 +8,7 @@ const Account = () => {
   const { balance, transactions } = useCreditsStore();
 
   return (
-    <div className="container max-w-2xl py-10">
+    <div className="container max-w-2xl px-4 sm:px-6 py-6 sm:py-10">
       <h1 className="font-heading text-3xl font-bold text-foreground mb-8">Minha Conta</h1>
 
       {/* Profile card */}
