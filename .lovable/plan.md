@@ -1,37 +1,56 @@
 
 
-## Integração dos Agentes com Webhooks n8n via Edge Function
+## Plano de Responsividade Mobile
 
-### Objetivo
-Substituir o `mockGenerate()` por chamadas reais aos webhooks do n8n, usando uma Edge Function como proxy seguro.
+Baseado nas screenshots e no codigo atual, identifiquei os seguintes problemas em mobile (viewport ~375-414px):
 
-### Mapeamento dos Agentes
+### Problemas Identificados
 
-| agentId | Webhook URL |
+1. **Header**: Os itens ficam apertados; o texto "créditos" e os botoes de acao competem por espaco
+2. **Chat - Sidebar**: A sidebar de historico (w-64 = 256px) ocupa quase toda a tela em mobile, empurrando o chat para fora da viewport
+3. **Chat - Area de mensagens**: Com a sidebar aberta, o conteudo do chat fica cortado/ilegivel
+4. **Pagina Agentes**: O grid de cards nao tem padding adequado em mobile
+5. **Pagina Creditos**: Os cards de pacotes ficam em coluna unica mas sem ajuste de spacing
+6. **Pagina Conta**: Layout ok mas pode melhorar padding
+
+### Alteracoes Planejadas
+
+**1. AppHeader.tsx** - Header compacto em mobile
+- Esconder o texto "créditos" em telas pequenas, mostrando apenas o icone + numero
+- Reduzir gaps entre elementos
+- Usar `hidden sm:inline` para textos secundarios
+
+**2. ChatHistorySidebar.tsx** - Drawer em mobile em vez de sidebar fixa
+- Em mobile (< 768px): renderizar como um `Sheet` (slide-over) em vez de sidebar inline
+- Em desktop: manter o comportamento atual
+- Usar o hook `useIsMobile()` ja existente no projeto
+
+**3. Chat.tsx** - Ajustes para mobile
+- Iniciar com sidebar fechada em mobile (`useState(false)` quando mobile)
+- Adicionar botao de toggle do historico na top bar do chat (visivel em mobile)
+- Ajustar padding da area de input
+
+**4. Agents.tsx** - Grid responsivo
+- Adicionar `px-4` para padding lateral em mobile
+- Cards ja ficam em coluna unica (grid sem breakpoint = 1 col), esta ok
+
+**5. Credits.tsx** - Ajustes de spacing
+- Reduzir padding do container em mobile
+- Cards ja responsivos via `sm:grid-cols-3`
+
+**6. Account.tsx** - Ajustes menores
+- Melhorar padding em mobile
+
+### Arquivos a Editar
+
+| Arquivo | Mudanca |
 |---|---|
-| `idea-to-tech` | `https://primary-production-51cb1e.up.railway.app/webhook/idea_to_tech1` |
-| `meeting-to-tasks` | `https://primary-production-51cb1e.up.railway.app/webhook/meeting_to_tasks1` |
-| `changelog-to-posts` | `https://primary-production-51cb1e.up.railway.app/webhook/changelog_to_posts1` |
+| `src/components/AppHeader.tsx` | Header compacto mobile |
+| `src/components/ChatHistorySidebar.tsx` | Sheet/drawer em mobile |
+| `src/pages/Chat.tsx` | Sidebar fechada por padrao em mobile, botao toggle |
+| `src/pages/Agents.tsx` | Padding mobile |
+| `src/pages/Credits.tsx` | Padding mobile |
+| `src/pages/Account.tsx` | Padding mobile |
 
-### Arquivos a criar/modificar
-
-**1. `supabase/functions/agent-generate/index.ts`** (novo)
-- Recebe `{ agentId, input }` via POST
-- Valida o JWT do usuário (extrai access token do header Authorization)
-- Mapeia `agentId` → URL do webhook usando um dicionário interno
-- Faz fetch para o webhook do n8n repassando o Bearer token e o input
-- Retorna a resposta ao frontend
-- Inclui CORS headers e tratamento de erros
-
-**2. `src/pages/Chat.tsx`**
-- Substitui `mockGenerate(agentId, input)` por `supabase.functions.invoke('agent-generate', { body: { agentId, input } })`
-- Trata a resposta (o formato dependerá do retorno do n8n — texto ou JSON)
-- Mantém o fluxo de dedução de créditos e exibição de mensagem
-
-### Detalhes técnicos
-
-- A Edge Function mantém as URLs dos webhooks no servidor, sem expô-las ao browser
-- O token do usuário logado é repassado automaticamente pelo `supabase.functions.invoke()`
-- A Edge Function repassa esse mesmo token ao n8n no header Authorization
-- Não são necessários secrets adicionais (as URLs são hardcoded na Edge Function)
+A mudanca principal e transformar a sidebar do chat em um **Sheet** (drawer lateral) quando em mobile, resolvendo o problema mais critico de usabilidade mostrado nas screenshots.
 
