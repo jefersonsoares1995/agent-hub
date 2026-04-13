@@ -129,7 +129,7 @@ const ChatHistorySidebar = ({ agentId, isOpen, onToggle }: ChatHistorySidebarPro
   if (isMobile) {
     return (
       <Sheet open={isOpen} onOpenChange={onToggle}>
-        <SheetContent side="left" className="w-72 p-0">
+        <SheetContent side="left" className="w-72 p-0 data-[state=open]:duration-300 data-[state=closed]:duration-200">
           <SheetHeader className="px-3 py-3 border-b border-border">
             <div className="flex items-center justify-between">
               <SheetTitle className="text-sm font-semibold">Histórico</SheetTitle>

@@ -8,13 +8,13 @@ import ChatBubble from "@/components/ChatBubble";
 import ChatHistorySidebar from "@/components/ChatHistorySidebar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Loader2, Send, PanelLeft } from "lucide-react";
+import { ArrowLeft, Loader2, Send, PanelLeft, MessageSquarePlus } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { toast } from "sonner";
 
 const ChatContent = ({ agentId }: { agentId: string }) => {
   const { getAgent } = useAgentsStore();
-  const { messages, addMessage, persistMessage, isGenerating, setGenerating, initSession, loadingHistory } = useChatStore();
+  const { messages, addMessage, persistMessage, isGenerating, setGenerating, initSession, loadingHistory, createNewSession } = useChatStore();
   const { balance, deduct } = useCreditsStore();
   const [input, setInput] = useState("");
   const isMobile = useIsMobile();
@@ -87,9 +87,14 @@ const ChatContent = ({ agentId }: { agentId: string }) => {
             </Button>
           </Link>
           {isMobile && (
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => setSidebarOpen(true)}>
-              <PanelLeft className="h-4 w-4" />
-            </Button>
+            <>
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => setSidebarOpen(true)}>
+                <PanelLeft className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => createNewSession(agentId)}>
+                <MessageSquarePlus className="h-4 w-4" />
+              </Button>
+            </>
           )}
           <div className="flex items-center justify-center p-1.5 sm:p-2 rounded-lg bg-primary/10">
             {IconComponent ? <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 text-primary" /> : <span className="text-xl sm:text-2xl">{agent.icon}</span>}
