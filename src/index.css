@@ -450,3 +450,12 @@
     animation: cyber-sweep 3s ease-in-out infinite;
   }
 }
+
+/* Hide scrollbars but keep scroll functionality */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
