@@ -106,7 +106,7 @@ const ChatContent = ({ agentId }: { agentId: string }) => {
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : (
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto hide-scrollbar p-3 sm:p-4 space-y-3 sm:space-y-4">
             {messages.length === 0 && (
               <div className="flex h-full items-center justify-center">
                 <div className="text-center px-4">
