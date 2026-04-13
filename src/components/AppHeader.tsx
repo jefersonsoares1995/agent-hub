@@ -23,33 +23,34 @@ const AppHeader = () => {
         <div className="h-full w-full bg-[linear-gradient(90deg,transparent,var(--primary-color),transparent)] bg-[length:200%_100%] animate-holo-shift" />
       </div>
 
-      <div className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-14 sm:h-16 w-full max-w-7xl items-center justify-between px-3 sm:px-6 lg:px-8">
         <Link to="/agentes" className="group flex items-center gap-2">
           <motion.div
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-800 border border-white/10 drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]"
+            className="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg bg-slate-800 border border-white/10 drop-shadow-[0_0_15px_rgba(6,182,212,0.3)]"
             whileHover={{ scale: 1.1, rotate: 5 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
-            <Bot className="h-5 w-5 text-primary" />
+            <Bot className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
           </motion.div>
-          <span className="font-heading text-xl font-bold tracking-tight text-white transition-all group-hover:text-primary">
+          <span className="font-heading text-lg sm:text-xl font-bold tracking-tight text-white transition-all group-hover:text-primary">
             AgentesAI
           </span>
         </Link>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <Link to="/creditos">
             <motion.div
-              className="flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-sm font-medium text-emerald-400 transition-all hover:bg-emerald-500/20"
+              className="flex items-center gap-1 sm:gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm font-medium text-emerald-400 transition-all hover:bg-emerald-500/20"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Coins className="h-4 w-4" />
-              <span>{balance} créditos</span>
+              <Coins className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span>{balance}</span>
+              <span className="hidden sm:inline">créditos</span>
             </motion.div>
           </Link>
 
-          <Link to="/conta" className="flex items-center justify-center rounded-full p-2 text-slate-400 transition-colors hover:bg-white/5 hover:text-slate-100">
+          <Link to="/conta" className="flex items-center justify-center rounded-full p-1.5 sm:p-2 text-slate-400 transition-colors hover:bg-white/5 hover:text-slate-100">
             <motion.div
               className="flex items-center justify-center"
               whileHover={{ scale: 1.1 }}
@@ -65,8 +66,8 @@ const AppHeader = () => {
 
           <ThemeSwitcher />
 
-          <button onClick={handleLogout} className="flex items-center justify-center rounded-full p-2 text-slate-400 transition-colors hover:bg-white/5 hover:text-slate-100">
-            <LogOut className="h-5 w-5" />
+          <button onClick={handleLogout} className="flex items-center justify-center rounded-full p-1.5 sm:p-2 text-slate-400 transition-colors hover:bg-white/5 hover:text-slate-100">
+            <LogOut className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
         </div>
       </div>

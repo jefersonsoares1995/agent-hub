@@ -6,7 +6,7 @@ const Agents = () => {
   const { agents } = useAgentsStore();
 
   return (
-    <div className="relative container py-10">
+    <div className="relative container px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
       {/* Subtle grid */}
       <div className="fixed inset-0 futuristic-grid opacity-30 pointer-events-none" />
 
