@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import CreditGuard from "@/components/CreditGuard";
 import ChatBubble from "@/components/ChatBubble";
+import ChatEmptyState from "@/components/ChatEmptyState";
 import ChatHistorySidebar from "@/components/ChatHistorySidebar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -156,14 +157,7 @@ const ChatContent = ({ agentId }: { agentId: string }) => {
         ) : (
           <div ref={scrollRef} className="flex-1 overflow-y-auto hide-scrollbar p-3 sm:p-4 space-y-3 sm:space-y-4">
             {messages.length === 0 && (
-              <div className="flex h-full items-center justify-center">
-                <div className="text-center px-4">
-                  <div className="mx-auto flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-2xl bg-primary/10 mb-4 shadow-[0_0_15px_var(--primary-color,rgba(6,182,212,0.1))]">
-                    {IconComponent ? <IconComponent className="h-8 w-8 sm:h-10 sm:w-10 text-primary" /> : <span className="text-4xl sm:text-5xl">{agent.icon}</span>}
-                  </div>
-                  <p className="text-sm sm:text-base text-muted-foreground">Digite seu input e clique em Gerar</p>
-                </div>
-              </div>
+              <ChatEmptyState agent={agent} onSuggestionClick={(s) => setInput(s)} />
             )}
             {messages.map((msg) => (
               <ChatBubble key={msg.id} message={msg} />
