@@ -1,6 +1,8 @@
 import * as LucideIcons from "lucide-react";
-import { Sparkles } from "lucide-react";
+import { Sparkles, History, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 import { Agent } from "@/lib/types";
+import { useAgentSuggestions } from "@/hooks/useAgentSuggestions";
 
 interface AgentIntro {
   welcome: string;
@@ -49,8 +51,20 @@ const ChatEmptyState = ({ agent, onSuggestionClick }: ChatEmptyStateProps) => {
   };
   const IconComponent = (LucideIcons as Record<string, React.ElementType>)[agent.icon];
 
+  const { suggestions, loading, isDynamic } = useAgentSuggestions(
+    agent.id,
+    intro.suggestions,
+    3,
+  );
+
   return (
-    <div className="mx-auto w-full max-w-2xl animate-fade-in space-y-4 py-4">
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className="mx-auto w-full max-w-2xl space-y-4 py-4"
+    >
       {/* Welcome card — styled like an assistant message */}
       <div className="flex gap-2 sm:gap-3">
         <div className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 ring-1 ring-primary/20">
@@ -69,27 +83,40 @@ const ChatEmptyState = ({ agent, onSuggestionClick }: ChatEmptyStateProps) => {
       </div>
 
       {/* Quick action suggestions */}
-      {intro.suggestions.length > 0 && (
-        <div className="pl-10 sm:pl-12">
-          <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1.5">
+      <div className="pl-10 sm:pl-12">
+        <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1.5">
+          {loading ? (
+            <Loader2 className="h-3 w-3 animate-spin" />
+          ) : isDynamic ? (
+            <History className="h-3 w-3" />
+          ) : (
             <Sparkles className="h-3 w-3" />
-            Sugestões para começar
-          </p>
+          )}
+          {loading
+            ? "Carregando sugestões..."
+            : isDynamic
+            ? "Baseado no seu histórico"
+            : "Sugestões para começar"}
+        </p>
+        {!loading && suggestions.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {intro.suggestions.map((s, i) => (
-              <button
-                key={i}
+            {suggestions.map((s, i) => (
+              <motion.button
+                key={`${s}-${i}`}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + i * 0.06, duration: 0.25 }}
                 onClick={() => onSuggestionClick(s)}
-                className="group rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-xs sm:text-sm text-foreground/90 transition-all hover:border-primary/60 hover:bg-primary/10 hover:text-primary hover:shadow-[0_0_12px_hsl(var(--primary)/0.25)]"
-                style={{ animationDelay: `${i * 80}ms` }}
+                className="group max-w-full truncate rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-xs sm:text-sm text-foreground/90 transition-all hover:border-primary/60 hover:bg-primary/10 hover:text-primary hover:shadow-[0_0_12px_hsl(var(--primary)/0.25)]"
+                title={s}
               >
                 {s}
-              </button>
+              </motion.button>
             ))}
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </motion.div>
   );
 };
 
