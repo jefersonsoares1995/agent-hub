@@ -8,13 +8,24 @@ import ChatBubble from "@/components/ChatBubble";
 import ChatHistorySidebar from "@/components/ChatHistorySidebar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Loader2, Send, PanelLeft, MessageSquarePlus } from "lucide-react";
+import { ArrowLeft, Loader2, Send, PanelLeft, MessageSquarePlus, Trash2 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const ChatContent = ({ agentId }: { agentId: string }) => {
   const { getAgent } = useAgentsStore();
-  const { messages, addMessage, persistMessage, isGenerating, setGenerating, initSession, loadingHistory, createNewSession } = useChatStore();
+  const { messages, addMessage, persistMessage, isGenerating, setGenerating, initSession, loadingHistory, createNewSession, deleteSession, sessionId } = useChatStore();
   const { balance, deduct } = useCreditsStore();
   const [input, setInput] = useState("");
   const isMobile = useIsMobile();
@@ -99,10 +110,42 @@ const ChatContent = ({ agentId }: { agentId: string }) => {
           <div className="flex items-center justify-center p-1.5 sm:p-2 rounded-lg bg-primary/10">
             {IconComponent ? <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 text-primary" /> : <span className="text-xl sm:text-2xl">{agent.icon}</span>}
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h2 className="font-heading text-sm font-semibold text-foreground truncate">{agent.name}</h2>
             <p className="text-xs text-muted-foreground">{agent.creditCost} crédito por uso</p>
           </div>
+
+          {sessionId && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 sm:h-9 sm:w-9 text-muted-foreground hover:text-destructive"
+                  title="Apagar conversa atual"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Apagar conversa</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Tem certeza que deseja apagar esta conversa? Todas as mensagens serão perdidas permanentemente.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => deleteSession(sessionId, agentId)}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Apagar
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
         </div>
 
         {/* Messages */}
