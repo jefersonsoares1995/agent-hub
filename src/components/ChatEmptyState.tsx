@@ -49,7 +49,7 @@ const ChatEmptyState = ({ agent, onSuggestionClick }: ChatEmptyStateProps) => {
     welcome: `Olá! Sou o agente ${agent.name}. Como posso te ajudar hoje?`,
     suggestions: [],
   };
-  const IconComponent = (LucideIcons as Record<string, React.ElementType>)[agent.icon];
+  const IconComponent = (LucideIcons as unknown as Record<string, React.ElementType>)[agent.icon];
 
   const { suggestions, loading, isDynamic } = useAgentSuggestions(
     agent.id,
