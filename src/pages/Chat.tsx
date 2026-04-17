@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import CreditGuard from "@/components/CreditGuard";
 import ChatBubble from "@/components/ChatBubble";
+import ChatEmptyState from "@/components/ChatEmptyState";
 import ChatHistorySidebar from "@/components/ChatHistorySidebar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
