@@ -1,5 +1,8 @@
 # AgentesAI
 
+<img width="1363" height="565" alt="image" src="https://github.com/user-attachments/assets/1d60dfbb-8b4d-4400-8085-f1d6a6f024d5" />
+
+
 > **Plataforma de Agentes de IA para Produtividade Digital**
 
 [![MVP Status](https://img.shields.io/badge/MVP-Validado-00B4B4?style=flat-square)](https://id-preview--f9bb3edc-11fa-4d4f-b896-2c1e66eb5ea0.lovable.app/agentes)
